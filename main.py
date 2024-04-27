@@ -16,8 +16,7 @@ async def root():
 
 @app.post("/qrcode")
 async def get_qrcode(message: Annotated[str, Form()]):
-    #qrcode = segno.make_qr(message)
-    qrcode = segno.make_qr("https://www.pornhub.com")
+    qrcode = segno.make_qr(message)
     qrcode.save("./assets/basic_qrcode.png", scale=5, border=10)
     file_path = "./assets/basic_qrcode.png"
     response = FileResponse(file_path)
