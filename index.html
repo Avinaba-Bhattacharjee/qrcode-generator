@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Code Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            max-width: 500px;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        h2 {
+            margin-top: 0;
+            color: #333;
+        }
+
+        form {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            resize: none;
+        }
+
+        input[type="submit"] {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+
+        #imageContainer {
+            margin-bottom: 20px;
+        }
+
+        img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 5px;
+        }
+
+        #downloadBtn {
+            padding: 10px 20px;
+            background-color: #28a745;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        #downloadBtn:hover {
+            background-color: #218838;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>QR Code Generator</h2>
+
+    <form id="apiForm">
+        <label for="message">Enter Text:</label><br>
+        <textarea id="message" name="message" rows="4" cols="50" placeholder="Enter text here"></textarea><br>
+        <input type="submit" value="Generate QR Code">
+    </form>
+
+    <!-- Placeholder for the image -->
+    <div id="imageContainer"></div>
+
+    <!-- Button to download the QR code image -->
+    <button id="downloadBtn" style="display: none;">Download QR Code</button>
+</div>
+
+<script>
+document.getElementById('apiForm').addEventListener('submit', function(event) {
+    event.preventDefault(); // Prevent form submission
+
+    var formData = new FormData(this);
+
+    fetch('/qrcode', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        // Assuming the API returns a PNG image
+        return response.blob();
+    })
+    .then(blob => {
+        // Convert the blob to a data URL
+        var imageUrl = URL.createObjectURL(blob);
+
+        // Create an image element and set its source to the URL
+        var img = document.createElement('img');
+        img.src = imageUrl;
+
+        // Append the image to the image container div
+        var imageContainer = document.getElementById('imageContainer');
+        imageContainer.innerHTML = ''; // Clear any previous content
+        imageContainer.appendChild(img);
+
+        // Show the download button
+        var downloadBtn = document.getElementById('downloadBtn');
+        downloadBtn.style.display = 'block';
+
+        // Add event listener to the download button
+        downloadBtn.addEventListener('click', function() {
+            // Create a temporary link element
+            var downloadLink = document.createElement('a');
+            downloadLink.href = imageUrl;
+            downloadLink.download = 'qrcode.png';
+            // Trigger the download
+            document.body.appendChild(downloadLink);
+            downloadLink.click();
+            document.body.removeChild(downloadLink);
+        });
+    })
+    .catch(error => {
+        console.error('There was a problem with the fetch operation:', error);
+    });
+});
+</script>
+
+</body>
+</html>
